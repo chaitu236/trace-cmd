@@ -17,6 +17,10 @@
 int silence_warnings;
 int show_status;
 
+#ifndef syscall
+#define syscall(x) (0)
+#endif
+
 #ifndef gettid
 #define gettid() syscall(__NR_gettid)
 #endif

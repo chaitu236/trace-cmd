@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <libgen.h>
-#include <sys/mount.h>
+//#include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/sysinfo.h>
@@ -612,14 +612,14 @@ unsigned long long tracecmd_generate_traceid(void)
 	struct timespec ts;
 	char *str = NULL;
 
-	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-	sysinfo(&sinfo);
-	asprintf(&str, "%ld %ld %ld %ld %ld %ld %ld %ld %d",
-		 ts.tv_sec, ts.tv_nsec,
-		 sinfo.loads[0], sinfo.loads[1], sinfo.loads[2],
-		 sinfo.freeram, sinfo.sharedram, sinfo.freeswap,
-		 sinfo.procs);
-	if (!str)
+	//clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+	//sysinfo(&sinfo);
+	//asprintf(&str, "%ld %ld %ld %ld %ld %ld %ld %ld %d",
+	//	 ts.tv_sec, ts.tv_nsec,
+	//	 sinfo.loads[0], sinfo.loads[1], sinfo.loads[2],
+	//	 sinfo.freeram, sinfo.sharedram, sinfo.freeswap,
+	//	 sinfo.procs);
+	//if (!str)
 		return 0;
 	ustr = (unsigned char *)str;
 	hash = 0;

@@ -227,12 +227,12 @@ export LIBTRACECMD_SHARED_VERSION LIBTRACECMD_SHARED_SO
 LIBTRACEEVENT=libtraceevent
 LIBTRACEFS=libtracefs
 
-TEST_LIBTRACEEVENT := $(shell sh -c "$(PKG_CONFIG) --atleast-version $(LIBTRACEEVENT_MIN_VERSION) $(LIBTRACEEVENT) > /dev/null 2>&1 && echo y")
-TEST_LIBTRACEFS := $(shell sh -c "$(PKG_CONFIG) --atleast-version $(LIBTRACEFS_MIN_VERSION) $(LIBTRACEFS) > /dev/null 2>&1 && echo y")
+TEST_LIBTRACEEVENT := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --atleast-version $(LIBTRACEEVENT_MIN_VERSION) $(LIBTRACEEVENT) > /dev/null 2>&1 && echo y")
+TEST_LIBTRACEFS := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --atleast-version $(LIBTRACEFS_MIN_VERSION) $(LIBTRACEFS) > /dev/null 2>&1 && echo y")
 
 ifeq ("$(TEST_LIBTRACEEVENT)", "y")
-LIBTRACEEVENT_CFLAGS := $(shell sh -c "$(PKG_CONFIG) --cflags $(LIBTRACEEVENT)")
-LIBTRACEEVENT_LDLAGS := $(shell sh -c "$(PKG_CONFIG) --libs $(LIBTRACEEVENT)")
+LIBTRACEEVENT_CFLAGS := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --cflags $(LIBTRACEEVENT)")
+LIBTRACEEVENT_LDLAGS := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --libs $(LIBTRACEEVENT)")
 else
 .PHONY: warning
 warning:
@@ -250,8 +250,8 @@ endif
 export LIBTRACEEVENT_CFLAGS LIBTRACEEVENT_LDLAGS
 
 ifeq ("$(TEST_LIBTRACEFS)", "y")
-LIBTRACEFS_CFLAGS := $(shell sh -c "$(PKG_CONFIG) --cflags $(LIBTRACEFS)")
-LIBTRACEFS_LDLAGS := $(shell sh -c "$(PKG_CONFIG) --libs $(LIBTRACEFS)")
+LIBTRACEFS_CFLAGS := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --cflags $(LIBTRACEFS)")
+LIBTRACEFS_LDLAGS := $(shell sh -c "PKG_CONFIG_LIBDIR=$(pkgconfig_dir) $(PKG_CONFIG) --libs $(LIBTRACEFS)")
 else
 .PHONY: warning
 warning:
@@ -283,6 +283,7 @@ INCLUDES += -I$(src)/include/trace-cmd
 INCLUDES += -I$(src)/lib/trace-cmd/include
 INCLUDES += -I$(src)/lib/trace-cmd/include/private
 INCLUDES += -I$(src)/tracecmd/include
+INCLUDES += -I/tmp/emscripten_root/usr/include
 INCLUDES += $(LIBTRACEEVENT_CFLAGS)
 INCLUDES += $(LIBTRACEFS_CFLAGS)
 
@@ -292,6 +293,9 @@ include $(src)/features.mk
 CFLAGS ?= -g -Wall
 CPPFLAGS ?=
 LDFLAGS ?=
+
+CFLAGS += -pthread
+LDFLAGS += -pthread
 
 ifndef NO_VSOCK
 VSOCK_DEFINED := $(shell if (echo "$(pound)include <linux/vm_sockets.h>" | $(CC) -E - >/dev/null 2>&1) ; then echo 1; else echo 0 ; fi)
@@ -400,7 +404,7 @@ $(BUILD_PREFIX): force
 $(PKG_CONFIG_FILE) : ${PKG_CONFIG_SOURCE_FILE}.template $(BUILD_PREFIX) $(VERSION_FILE)
 	$(Q) $(call do_make_pkgconfig_file,$(prefix))
 
-trace-cmd: force $(LIBTRACECMD_STATIC) \
+trace-cmd: force $(LIBTRACECMD_STATIC) $(LIBTRACECMD_SHARED) \
 	force $(obj)/lib/trace-cmd/plugins/tracecmd_plugin_dir
 	$(Q)$(MAKE) -C $(src)/tracecmd $(obj)/tracecmd/$@
 
@@ -499,7 +503,7 @@ install_python: force
 install_bash_completion: force
 	$(Q)$(call do_install_data,$(src)/tracecmd/trace-cmd.bash,$(completion_dir))
 
-install_cmd: all_cmd install_plugins install_python install_bash_completion
+install_cmd: all_cmd install_plugins install_python install_bash_completion install_libs
 	$(Q)$(call do_install,$(obj)/tracecmd/trace-cmd,$(bindir_SQ))
 
 install: install_cmd

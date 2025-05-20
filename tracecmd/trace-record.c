@@ -60,6 +60,10 @@
 
 #define dprint(fmt, ...)	tracecmd_debug(fmt, ##__VA_ARGS__)
 
+#ifndef syscall
+#define syscall(x, y, z) (0)
+#endif
+
 enum trace_type {
 	TRACE_TYPE_RECORD	= 1,
 	TRACE_TYPE_START	= (1 << 1),
@@ -1779,8 +1783,8 @@ static int change_user(const char *user)
 	pwd = getpwnam(user);
 	if (!pwd)
 		return -1;
-	if (initgroups(user, pwd->pw_gid) < 0)
-		return -1;
+	//if (initgroups(user, pwd->pw_gid) < 0)
+	//	return -1;
 	if (setgid(pwd->pw_gid) < 0)
 		return -1;
 	if (setuid(pwd->pw_uid) < 0)
@@ -3537,7 +3541,7 @@ static void set_prio(int prio)
 
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = prio;
-	if (sched_setscheduler(0, SCHED_FIFO, &sp) < 0)
+	//if (sched_setscheduler(0, SCHED_FIFO, &sp) < 0)
 		warning("failed to set priority");
 }
 

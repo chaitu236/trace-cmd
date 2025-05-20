@@ -511,9 +511,9 @@ static cpu_set_t *pin_to_cpu(int cpu)
 
 	CPU_ZERO_S(size, mask);
 	CPU_SET_S(cpu, size, mask);
-	if (pthread_getaffinity_np(pthread_self(), size, old))
+	//if (pthread_getaffinity_np(pthread_self(), size, old))
 		goto error;
-	if (pthread_setaffinity_np(pthread_self(), size, mask))
+	//if (pthread_setaffinity_np(pthread_self(), size, mask))
 		goto error;
 
 	CPU_FREE(mask);
@@ -534,7 +534,7 @@ static void restore_pin_to_cpu(cpu_set_t *mask)
 	if (!size)
 		size = CPU_ALLOC_SIZE(tracecmd_count_cpus());
 
-	pthread_setaffinity_np(pthread_self(), size, mask);
+	//pthread_setaffinity_np(pthread_self(), size, mask);
 	CPU_FREE(mask);
 }
 
@@ -790,8 +790,8 @@ tracecmd_tsync_with_guest(unsigned long long trace_id, int loop_interval,
 		goto error;
 	tsync->thread_running = true;
 
-	if (!get_first_cpu(&pin_mask, &mask_size))
-		pthread_setaffinity_np(tsync->thread, mask_size, pin_mask);
+	//if (!get_first_cpu(&pin_mask, &mask_size))
+	//	pthread_setaffinity_np(tsync->thread, mask_size, pin_mask);
 	pthread_barrier_wait(&tsync->first_sync);
 
 	if (pin_mask)
@@ -986,8 +986,8 @@ tracecmd_tsync_with_host(int fd, const char *proto, const char *clock,
 		goto error;
 	}
 	tsync->thread_running = true;
-	if (!get_first_cpu(&pin_mask, &mask_size))
-		pthread_setaffinity_np(tsync->thread, mask_size, pin_mask);
+	//if (!get_first_cpu(&pin_mask, &mask_size))
+	//	pthread_setaffinity_np(tsync->thread, mask_size, pin_mask);
 
 	if (pin_mask)
 		CPU_FREE(pin_mask);

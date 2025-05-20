@@ -338,7 +338,7 @@ static void agent_serve(unsigned int port, bool do_daemon, int proxy_id,
 			printf("listening on @%u:%u\n", cid, port);
 	}
 
-	if (do_daemon && daemon(1, 0))
+	//if (do_daemon && daemon(1, 0))
 		die("daemon");
 
 	for (;;) {

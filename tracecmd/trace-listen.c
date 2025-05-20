@@ -1100,7 +1100,7 @@ static void start_daemon(void)
 {
 	do_daemon = 1;
 
-	if (daemon(1, 0) < 0)
+	//if (daemon(1, 0) < 0)
 		die("starting daemon");
 }
 
